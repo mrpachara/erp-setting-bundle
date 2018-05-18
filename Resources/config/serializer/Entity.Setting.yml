@@ -1,0 +1,5 @@
+Erp\Bundle\SettingBundle\Entity\Setting:
+  access_type: property
+  properties:
+    value:
+      type: array

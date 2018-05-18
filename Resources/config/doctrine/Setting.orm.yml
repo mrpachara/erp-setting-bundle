@@ -1,0 +1,28 @@
+Erp\Bundle\SettingBundle\Entity\Setting:
+  type: entity
+  #repositoryClass: Erp\Bundle\SettingBundle\Infrastructure\ORM\Repository\SettingRepository
+  table: setting_setting
+  uniqueConstraints:
+    setting_code_uinx:
+      columns: code
+  inheritanceType: JOINED
+  id:
+    id:
+      type: bigint
+      generator:
+        strategy: IDENTITY
+  fields:
+    code:
+      type: string
+      length: 64
+      nullable: false
+    name:
+      type: string
+      length: 255
+      nullable: false
+    priority:
+      type: integer
+      nullable: false
+    value:
+      type: json
+      nullable: false
