@@ -11,26 +11,27 @@ class SettingAuthorization extends Authorization
 
     public function list(...$args)
     {
-        return parent::list(...$args) && $this->grantByCode('ROLE_LIST_SETTING', ...$args);
+        return parent::list(...$args) && $this->grantByCode('ROLE_SETTING_%CODE%_LIST', ...$args);
     }
 
     public function get(...$args)
     {
-        return parent::get(...$args) && $this->grantByCode('ROLE_VIEW_SETTING', ...$args);
+        return parent::get(...$args) && $this->grantByCode('ROLE_SETTING_%CODE%_VIEW', ...$args);
     }
 
     public function edit(...$args)
     {
-        return parent::edit(...$args) && $this->grantByCode('ROLE_EDIT_SETTING', ...$args);
+        return parent::edit(...$args) && $this->grantByCode('ROLE_SETTING_%CODE%_EDIT', ...$args);
     }
 
-    protected function grantByCode($prefix, $item = null)
+    protected function grantByCode($pattern, $item = null)
     {
         if (empty($item)) {
             return true;
         }
 
         $code = strtoupper($item->getCode());
-        return $this->authorizationChecker->isGranted("{$prefix}_{$code}");
+        $role = str_replace('%CODE%', $code, $pattern);
+        return $this->authorizationChecker->isGranted($role);
     }
 }
