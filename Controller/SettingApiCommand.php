@@ -55,9 +55,11 @@ class SettingApiCommand extends ErpApiCommand
      */
     public function updateByCodeAction($code, Request $request)
     {
-        return $this->updateCommand('edit', $code, $request, function ($code, &$data) {
-            return $this->domainQuery->findOneByCode($code);
-        });
+        return $this->updateCommand($code, $request, [
+            'edit' => function ($code, &$data) {
+                return $this->domainQuery->findOneByCode($code);
+            },
+        ]);
     }
 
     /**
@@ -70,8 +72,10 @@ class SettingApiCommand extends ErpApiCommand
      */
     public function deleteByCodeAction($code, Request $request)
     {
-        return $this->deleteCommand('delete', $code, $request, function ($code) {
-            return $this->domainQuery->findOneBy($code);
-        });
+        return $this->deleteCommand($code, $request, [
+            'delete' => function ($code) {
+                return $this->domainQuery->findOneBy($code);
+            },
+        ]);
     }
 }
