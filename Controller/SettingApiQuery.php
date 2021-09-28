@@ -3,7 +3,7 @@
 namespace Erp\Bundle\SettingBundle\Controller;
 
 use FOS\RestBundle\Controller\Annotations as Rest;
-use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Erp\Bundle\CoreBundle\Controller\ErpContextTrait;
 use Psr\Http\Message\ServerRequestInterface;
 use Erp\Bundle\CoreBundle\Controller\ErpApiQuery;
@@ -34,9 +34,11 @@ abstract class SettingApiQuery extends ErpApiQuery
      */
     public function getAction($code, ServerRequestInterface $request)
     {
-        return $this->getQuery('get', $code, $request, function($code, $queryParams, &$context) {
-            return $this->domainQuery->findOneByCode($code);
-        });
+        return $this->getQuery($code, $request, [
+            'get' => function($code, $queryParams, &$context) {
+                return $this->domainQuery->findOneByCode($code);
+            },
+        ]);
     }
 
     protected function listResponse($data, $context)
@@ -59,19 +61,22 @@ abstract class SettingApiQuery extends ErpApiQuery
         return $context;
     }
 
-    protected function listQuery($grant, ServerRequestInterface $request, $callback)
+    protected function listQuery(ServerRequestInterface $request, $callbacks)
     {
-        if (!$this->grant($grant, [])) {
-            throw new UnprocessableEntityHttpException("List is not allowed.");
+        foreach($callbacks as $grantText => $callback) {
+            $grants = preg_split('/\s+/', $grantText);
+            if (!$this->grant($grants, [])) continue;
+
+            $queryParams = $request->getQueryParams();
+            $items = [];
+            $context = [];
+
+            $items = $callback($queryParams, $context);
+
+            return $this->view($this->listResponse($items, $context), 200);
         }
 
-        $queryParams = $request->getQueryParams();
-        $items = [];
-        $context = [];
-
-        $items = $callback($queryParams, $context);
-
-        return $this->view($this->listResponse($items, $context), 200);
+        throw new AccessDeniedException("List is not allowed.");
     }
 
     /**
@@ -83,13 +88,15 @@ abstract class SettingApiQuery extends ErpApiQuery
      */
     public function listAction(ServerRequestInterface $request)
     {
-        return $this->listQuery('list', $request, function($queryParams, &$context) {
-            if (!empty($queryParams)) {
-                return $this->domainQuery->search($queryParams, $context);
-            } else {
-                return $this->domainQuery->findAll();
-            }
-        });
+        return $this->listQuery($request, [
+            'list' => function($queryParams, &$context) {
+                if (!empty($queryParams)) {
+                    return $this->domainQuery->search($queryParams, $context);
+                } else {
+                    return $this->domainQuery->findAll();
+                }
+            },
+        ]);
     }
 
     protected function getResponse($data, $context)
@@ -105,22 +112,23 @@ abstract class SettingApiQuery extends ErpApiQuery
         return $context;
     }
 
-    protected function getQuery($grant, $code, ServerRequestInterface $request, $callback)
+    protected function getQuery($code, ServerRequestInterface $request, $callbacks)
     {
-        if (!$this->grant($grant, [])) {
-            throw new UnprocessableEntityHttpException("Get is not allowed.");
+        foreach($callbacks as $grantText => $callback) {
+            $grants = preg_split('/\s+/', $grantText);
+            if (!$this->grant($grants, [])) continue;
+
+            $queryParams = $request->getQueryParams();
+            $item = null;
+            $context = [];
+
+            $item = $callback($code, $queryParams, $context);
+
+            if (!$this->grant($grants, [$item])) continue;
+
+            return $this->view($this->getResponse($item, $context), 200);
         }
 
-        $queryParams = $request->getQueryParams();
-        $item = null;
-        $context = [];
-
-        $item = $callback($code, $queryParams, $context);
-
-        if (!$this->grant($grant, [$item])) {
-            throw new UnprocessableEntityHttpException("Get is not allowed.");
-        }
-
-        return $this->view($this->getResponse($item, $context), 200);
+        throw new AccessDeniedException("Get is not allowed.");
     }
 }
