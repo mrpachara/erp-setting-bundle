@@ -22,17 +22,6 @@ class SettingApiCommand extends ErpApiCommand
      */
     protected $domainQuery;
 
-    // /**
-    //  * @var \Erp\Bundle\SettingBundle\Domain\CQRS\SettingCommandHandler
-    //  */
-    // protected $commandHandler;
-    //
-    // /** @required */
-    // public function setCommandHandler(\Erp\Bundle\SettingBundle\Domain\CQRS\SettingCommandHandler $commandHandler)
-    // {
-    //     $this->commandHandler = $commandHandler;
-    // }
-
     /**
      * create action
      *
@@ -57,6 +46,10 @@ class SettingApiCommand extends ErpApiCommand
     {
         return $this->updateCommand($code, $request, [
             'edit' => function ($code, &$data) {
+                $data = [
+                    'dtype' => $data['dtype'],
+                    'value' => $data['value'],
+                ];
                 return $this->domainQuery->findOneByCode($code);
             },
         ]);
@@ -72,10 +65,11 @@ class SettingApiCommand extends ErpApiCommand
      */
     public function deleteByCodeAction($code, Request $request)
     {
-        return $this->deleteCommand($code, $request, [
-            'delete' => function ($code) {
-                return $this->domainQuery->findOneBy($code);
-            },
-        ]);
+        throw new \Exception("Not allowed");
+        // return $this->deleteCommand($code, $request, [
+        //     'delete' => function ($code) {
+        //         return $this->domainQuery->findOneBy($code);
+        //     },
+        // ]);
     }
 }

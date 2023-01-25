@@ -7,6 +7,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Erp\Bundle\CoreBundle\Controller\ErpContextTrait;
 use Psr\Http\Message\ServerRequestInterface;
 use Erp\Bundle\CoreBundle\Controller\ErpApiQuery;
+use Erp\Bundle\SettingBundle\Entity\Setting;
 
 /**
  * Setting Api Query
@@ -25,6 +26,21 @@ abstract class SettingApiQuery extends ErpApiQuery
     protected $domainQuery;
 
     /**
+     * {@inheritDoc}
+     */
+    protected function reduceListData($data)
+    {
+        /**
+         * @var Setting $setting
+         */
+        foreach ($data as $setting) {
+            $setting->setValue(null);
+        }
+
+        return $data;
+    }
+
+    /**
      * get action
      *
      * @Rest\Get("/{code}")
@@ -35,7 +51,7 @@ abstract class SettingApiQuery extends ErpApiQuery
     public function getAction($code, ServerRequestInterface $request)
     {
         return $this->getQuery($code, $request, [
-            'get' => function($code, $queryParams, &$context) {
+            'get' => function ($code, $queryParams, &$context) {
                 return $this->domainQuery->findOneByCode($code);
             },
         ]);
@@ -55,15 +71,17 @@ abstract class SettingApiQuery extends ErpApiQuery
             }
         }
 
+        $context = $this->extendListContext($context);
+
         $context['actions'] = $this->prepareActions($context['actions'], $data);
-        $context['data'] = $data;
+        $context['data'] = $this->reduceListData($data);
 
         return $context;
     }
 
     protected function listQuery(ServerRequestInterface $request, $callbacks)
     {
-        foreach($callbacks as $grantText => $callback) {
+        foreach ($callbacks as $grantText => $callback) {
             $grants = preg_split('/\s+/', $grantText);
             if (!$this->grant($grants, [])) continue;
 
@@ -89,7 +107,7 @@ abstract class SettingApiQuery extends ErpApiQuery
     public function listAction(ServerRequestInterface $request)
     {
         return $this->listQuery($request, [
-            'list' => function($queryParams, &$context) {
+            'list' => function ($queryParams, &$context) {
                 if (!empty($queryParams)) {
                     return $this->domainQuery->search($queryParams, $context);
                 } else {
@@ -114,7 +132,7 @@ abstract class SettingApiQuery extends ErpApiQuery
 
     protected function getQuery($code, ServerRequestInterface $request, $callbacks)
     {
-        foreach($callbacks as $grantText => $callback) {
+        foreach ($callbacks as $grantText => $callback) {
             $grants = preg_split('/\s+/', $grantText);
             if (!$this->grant($grants, [])) continue;
 

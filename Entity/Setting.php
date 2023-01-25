@@ -7,11 +7,12 @@ use Erp\Bundle\CoreBundle\Entity\StatusPresentable;
 /**
  * Setting Entity
  */
-class Setting implements StatusPresentable {
+class Setting implements StatusPresentable
+{
 
     /**
-    * @var string
-    */
+     * @var string
+     */
     private $id;
 
     /**
@@ -30,14 +31,15 @@ class Setting implements StatusPresentable {
     protected $priority;
 
     /**
-    * @var array
-    */
+     * @var array
+     */
     protected $value;
 
     /**
      * ConstructorTest
      */
-    public function __construct() {
+    public function __construct()
+    {
     }
 
     /**
@@ -45,7 +47,8 @@ class Setting implements StatusPresentable {
      *
      * @return string
      */
-    public function getId(){
+    public function getId()
+    {
         return $this->id;
     }
 
@@ -56,7 +59,8 @@ class Setting implements StatusPresentable {
      *
      * @return static
      */
-    public function setCode(string $code){
+    public function setCode(string $code)
+    {
         $this->code = $code;
 
         return $this;
@@ -67,7 +71,8 @@ class Setting implements StatusPresentable {
      *
      * @return string
      */
-    public function getCode(){
+    public function getCode()
+    {
         return $this->code;
     }
 
@@ -78,7 +83,8 @@ class Setting implements StatusPresentable {
      *
      * @return static
      */
-    public function setName(string $name){
+    public function setName(string $name)
+    {
         $this->name = $name;
 
         return $this;
@@ -89,7 +95,8 @@ class Setting implements StatusPresentable {
      *
      * @return string
      */
-    public function getName(){
+    public function getName()
+    {
         return $this->name;
     }
 
@@ -100,7 +107,8 @@ class Setting implements StatusPresentable {
      *
      * @return static
      */
-    public function setPriority(int $priority){
+    public function setPriority(int $priority)
+    {
         $this->priority = $priority;
 
         return $this;
@@ -111,7 +119,8 @@ class Setting implements StatusPresentable {
      *
      * @return int
      */
-    public function getPriority(){
+    public function getPriority()
+    {
         return $this->priority;
     }
 
@@ -122,7 +131,8 @@ class Setting implements StatusPresentable {
      *
      * @return static
      */
-    public function setValue(array $value){
+    public function setValue(?array $value)
+    {
         $this->value = $value;
 
         return $this;
@@ -133,16 +143,19 @@ class Setting implements StatusPresentable {
      *
      * @return array
      */
-    public function getValue(){
+    public function getValue()
+    {
         return $this->value;
     }
 
-    public function updatable(){
-      // TODO: must checks ative but allows save when change active value
-      return true;
+    public function updatable()
+    {
+        // TODO: must checks ative but allows save when change active value
+        return true;
     }
 
-    public function deletable(){
-      return true;
+    public function deletable()
+    {
+        return true;
     }
 }
